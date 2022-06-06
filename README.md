@@ -78,7 +78,7 @@ We test it by adding SQRT instructions in the victim function and after the vict
 
 On i7-10710U, with frequency at 3.8GHz, having 80 SQRT instruction blocks the speculative execution of secret independent memory access.
 
-![image](https://github.com/0xADE1A1DE/USLH/blob/master/Exploit_PoC/exhaust_resources/FP.pdf)
+![image](https://github.com/0xADE1A1DE/USLH/blob/master/Exploit_PoC/exhaust_resources/find_limitation.png)
 
 
 ## Fixing Speculative Load Hardening
