@@ -55,7 +55,7 @@ An attacker could infer the input to floating point operands by checking the exi
 You could find the PoC under folder Exploit_Poc/V1_VariableTiming_dependency
 
 ### PoC_3: Memory access independent on variable timing instructions
-Our thid PoC exploits the limitation of back-end limiation and demonstrate that an access to a global variable (secret independent value) leaks information.
+Our thid PoC exploits the limitation of back-end limiation and we demonstrate that an access to a global variable (secret independent value) leaks information.
 ```
 if (security_check) {
   value = sqrtsd(value);
@@ -65,7 +65,7 @@ if (security_check) {
   memory_access(global variable);
 }
 ```
-Floating point execution consumes back-end resources and depends on the race condition between the free of resource and speculation window, a memory access to a global variable may or may not be performed.
+Floating point execution consumes back-end resources and depending on the race condition between the free of resource and speculation window, a memory access to a global variable may or may not be performed.
 
 In our PoC, we demonstrate that when the secret causes a slow floating point execution, the block of computer resources prevents the execution of a secret independent memory access.
 
