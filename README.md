@@ -74,9 +74,9 @@ You could find the PoC under folder Exploit_Poc/V1_VariableTiming_RsourceContent
 The number of floating point instructions that block back-end resources are various among different platforms. It is related to the execution time of floating point executions and the speculation window.  
 
 We provide a script to test when floating point instructions block back-end resources needed for memory independent memory access.  
-We test it by adding SQRT instructions in the victim function and after the victim execution, we check the presence of secret independent memory in the cache.
+We test it by adding pairs of SQRTSD and MULSD instructions in the victim function and after the victim execution, we check the presence of secret independent memory in the cache.
 
-On i7-10710U, with frequency at 3.8GHz, having 80 SQRT instruction blocks the speculative execution of secret independent memory access.
+On i7-10710U, with frequency at 3.8GHz, having 51 pairs of instruction blocks the speculative execution of secret independent memory access.
 
 ![image](https://github.com/0xADE1A1DE/USLH/blob/master/Exploit_PoC/exhaust_resources/find_limitation.png)
 
@@ -84,4 +84,3 @@ On i7-10710U, with frequency at 3.8GHz, having 80 SQRT instruction blocks the sp
 ## Fixing Speculative Load Hardening
 We fix the vulnerabilities proposed in our paper and we also harden the memory writing, memory accessing on fixed address.  
 More information are provided in LLVM_FIX folder.
-
