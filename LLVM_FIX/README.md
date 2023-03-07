@@ -24,3 +24,16 @@ Similar to hardening addresses of memory reading, except that we are hardening a
 ## Variable timing instructions
 We harden floating point instructions by poisoning their operands and for X87 instructions, we insert LFENCE.  
 We also harden rcx register for REPEAT instructions. They are special cases for conditional branching instructions.
+
+
+**Code is in file X86SpeculativeLoadHardening.cpp**
+
+
+# Find Gadget
+The code is in file X86MIRanalyze.cpp.
+
+## How to use it
+After the clang is compiled, you can use the backend pass with command  
+`$path_to_binary/clang main.c -mllvm -x86-mir-analyze`
+
+Clang will print ``Found it --> `` if it finds a gadget.

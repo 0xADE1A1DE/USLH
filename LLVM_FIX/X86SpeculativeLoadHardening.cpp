@@ -148,14 +148,6 @@ static cl::opt<bool> HardenVariantTimingInstr(
 	     "also leak info in the Speculation."),
     cl::init(false), cl::Hidden);
 
-static cl::opt<bool> HardenTraceOnly(
-    PASS_KEY "-traceOnly",
-    cl::desc("Trace Only, No Harden"),
-    cl::init(false), cl::Hidden);
-
-
-
-
 namespace {
 
 class X86SpeculativeLoadHardeningPass : public MachineFunctionPass {
@@ -418,8 +410,8 @@ static void canonicalizePHIOperands(MachineFunction &MF) {
         int OpIdx = DupIndices.pop_back_val();
         // Remove both the block and value operand, again in reverse order to
         // preserve indices.
-        MI.RemoveOperand(OpIdx + 1);
-        MI.RemoveOperand(OpIdx);
+        MI.removeOperand(OpIdx + 1);
+        MI.removeOperand(OpIdx);
       }
 
       Preds.clear();
@@ -598,9 +590,6 @@ bool X86SpeculativeLoadHardeningPass::runOnMachineFunction(
     auto IndirectBrCMovs = tracePredStateThroughIndirectBranches(MF);
     CMovs.append(IndirectBrCMovs.begin(), IndirectBrCMovs.end());
   }
-	
-  if (HardenTraceOnly)
-	  return true;
 
   // Now that we have the predicate state available at the start of each block
   // in the CFG, trace it through each block, hardening vulnerable instructions
@@ -1406,14 +1395,13 @@ void X86SpeculativeLoadHardeningPass::tracePredStateThroughBlocksAndHarden(
   SmallPtrSet<MachineInstr *, 16> HardenVTInstr;
   SmallPtrSet<MachineInstr *, 1> HardenFixedAddressRSP;
   SmallPtrSet<MachineInstr *, 1> HardenFixedAddressRBP;
-  SmallPtrSet<MachineInstr *, 1> HardenFixedAddressRIP;
+//  SmallPtrSet<MachineInstr *, 1> HardenFixedAddressRIP;
   bool hardened_RSP = false;
 
   SmallSet<unsigned, 16> HardenedAddrRegs;
 
   SmallDenseMap<unsigned, unsigned, 32> AddrRegToHardenedReg;
   SmallDenseMap<unsigned, unsigned, 32> AddrRegToHardenedReg_VT;
-  SmallDenseMap<unsigned, unsigned, 32> AddrRegToHardenedReg_skipfix;
 
   // Track the set of load-dependent registers through the basic block. Because
   // the values of these registers have an existing data dependency on a loaded
@@ -1537,10 +1525,6 @@ void X86SpeculativeLoadHardeningPass::tracePredStateThroughBlocksAndHarden(
         // We hijack the SLH logic to log fix-address memory loading
         if (!BaseReg && !IndexReg) {
           if (HardenFixedAddress) {
-	    if (MI.getOperand(0).isReg() && MI.getOperand(0).getReg().isVirtual()) {
-	      AddrRegToHardenedReg_skipfix[MI.getOperand(0).getReg()] = 1;
-	    }
-
             if (BaseMO.isFI()) {
               if (HardenFixedAddressRBP.empty())
                 HardenFixedAddressRBP.insert(&MI);
@@ -1548,10 +1532,7 @@ void X86SpeculativeLoadHardeningPass::tracePredStateThroughBlocksAndHarden(
               hardened_RSP = true;
               if (HardenFixedAddressRSP.empty())
                 HardenFixedAddressRSP.insert(&MI);
-            } else if (BaseMO.getReg() == X86::RIP || BaseMO.getReg() == X86::NoRegister) {
-              if (HardenFixedAddressRIP.empty())
-                HardenFixedAddressRIP.insert(&MI);
-            }
+            } 
             HardenStoreAddr.erase(&MI);
           }
 
@@ -1672,10 +1653,9 @@ void X86SpeculativeLoadHardeningPass::tracePredStateThroughBlocksAndHarden(
         }
 
         // Harden fixed Address
-        if (HardenFixedAddressRBP.erase(&MI) || HardenFixedAddressRSP.erase(&MI)
-            || HardenFixedAddressRIP.erase(&MI)) {
+        if (HardenFixedAddressRBP.erase(&MI) || HardenFixedAddressRSP.erase(&MI)) {
             hardenFixedAddress(MI);
-        }
+	}
         
         // Harden the condition. 
         if (HardenCondition.erase(&MI)) {
@@ -1695,24 +1675,17 @@ void X86SpeculativeLoadHardeningPass::tracePredStateThroughBlocksAndHarden(
             if (vt_tmpOp.isDef()) continue;
 
             // It is already hardened
-	    if (AddrRegToHardenedReg_skipfix.count(vt_tmpOp.getReg())) {
-	      printf("ATTENTION1\n");
-	      continue;
-	    }
-
-	    if (AddrRegToHardenedReg.count(vt_tmpOp.getReg())) {
-	      printf("ATTENTION2");
-	      continue;
-	    }
+            if (AddrRegToHardenedReg.count(vt_tmpOp.getReg()))
+              continue;
 
             if (AddrRegToHardenedReg_VT.count(vt_tmpOp.getReg())) {
               if (AddrRegToHardenedReg_VT[vt_tmpOp.getReg()] == 1)
                 continue;
               if (AddrRegToHardenedReg_VT[vt_tmpOp.getReg()] > 1) {
                 MI.getOperand(VT_idx).setReg(AddrRegToHardenedReg_VT[vt_tmpOp.getReg()]);
-                continue;
-              }
-            }
+		continue;
+	      }
+	    }
 
             // Now Harden it
             tobeHardened = vt_tmpOp.getReg();
@@ -1777,10 +1750,8 @@ void X86SpeculativeLoadHardeningPass::tracePredStateThroughBlocksAndHarden(
     HardenedAddrRegs.clear();
     HardenFixedAddressRBP.clear();
     HardenFixedAddressRSP.clear();
-    HardenFixedAddressRIP.clear();
     AddrRegToHardenedReg.clear();
     AddrRegToHardenedReg_VT.clear();
-    AddrRegToHardenedReg_skipfix.clear();
     hardened_RSP = false;
 
     // Currently, we only track data-dependent loads within a basic block.
@@ -1962,7 +1933,7 @@ void X86SpeculativeLoadHardeningPass::hardenLoadAddr(
     // hardening it.
     if (!Subtarget->hasVLX() && (OpRC->hasSuperClassEq(&X86::VR128RegClass) ||
                                  OpRC->hasSuperClassEq(&X86::VR256RegClass))) {
-      assert(Subtarget->hasAVX2() && "AVX2-specific register classes!");
+      //assert(Subtarget->hasAVX2() && "AVX2-specific register classes!");
       bool Is128Bit = OpRC->hasSuperClassEq(&X86::VR128RegClass);
 
       // Move our state into a vector register.
@@ -2739,7 +2710,7 @@ unsigned X86SpeculativeLoadHardeningPass::hardenBranch(MachineInstr &MI,
     // Manually update the target instruction, get rid of memory operantion 
     // and replace it with a masked virtual register
     for (int i = removeIndex; i < (removeIndex+4); i++)
-      MI.RemoveOperand(removeIndex);
+      MI.removeOperand(removeIndex);
     assert(MI.getOperand(removeIndex).isReg() && "Hey HardenedReg is not a reg!!!");
 
       MI.getOperand(removeIndex).setReg(HardenedReg);
@@ -2827,7 +2798,7 @@ unsigned X86SpeculativeLoadHardeningPass::hardenVariantTimingInstr(MachineInstr 
       if (!Subtarget->hasVLX() && (RC->hasSuperClassEq(&X86::VR128RegClass) ||
                                  RC->hasSuperClassEq(&X86::VR256RegClass))) {
 
-      assert(Subtarget->hasAVX2() && "AVX2-specific register classes!");
+      //assert(Subtarget->hasAVX2() && "AVX2-specific register classes!");
       bool Is128Bit = RC->hasSuperClassEq(&X86::VR128RegClass);
 
       bool EFLAGSLive = isEFLAGSLive(MBB, MI.getIterator(), *TRI);
@@ -2992,7 +2963,7 @@ unsigned X86SpeculativeLoadHardeningPass::hardenVariantTimingInstr(MachineInstr 
   return 0;  
 }
 
-// Harden fixed address(RIP, RSP, RBP)
+// Harden fixed address(RSP, RBP)
 unsigned X86SpeculativeLoadHardeningPass::hardenFixedAddress(MachineInstr &MI, int special)
 {
   unsigned hardened = 0;
@@ -3025,13 +2996,18 @@ unsigned X86SpeculativeLoadHardeningPass::hardenFixedAddress(MachineInstr &MI, i
                         .addReg(X86::RSP, RegState::Undef)
                         .addReg(StateReg);
       hardened = 1;
-    } else if (BaseMO.isReg() && 
+    } 
+#if 0
+    else if (BaseMO.isReg() && 
 	    (BaseMO.getReg() == X86::RIP || BaseMO.getReg() == X86::NoRegister)) {
+      // DO NOT HARDEN RIP
       OrI = BuildMI(MBB, MI, Loc, TII->get(X86::OR64rr), X86::RIP)
                         .addReg(X86::RIP, RegState::Undef)
                         .addReg(StateReg);
       hardened = 1;
     } 
+#endif
+
   }
   OrI->addRegisterDead(X86::EFLAGS, TRI);
   if (FlagsReg)
@@ -3098,6 +3074,7 @@ static unsigned analyseVariantTimingInstruction(MachineInstr &MI)
     case X86::REP_STOSW_32:  case X86::REP_STOSD_32:  case X86::REP_STOSQ_32:
     case X86::REP_STOSB_64:  case X86::REP_STOSW_64:  case X86::REP_STOSD_64:
     case X86::REP_STOSQ_64:  case X86::REP_PREFIX:    case X86::REPNE_PREFIX:
+      printf("ATTENTION\n"); 
       return 1;
     
     // Harden the value
