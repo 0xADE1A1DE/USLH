@@ -1,7 +1,9 @@
 #!/bin/bash
 
-~/Desktop/llvm-project/build/bin/clang main.c -O1 -S -emit-llvm
-~/Desktop/llvm-project/build/bin/llc main.ll
+folder=~/Desktop/llvm-project/build/bin
+
+$folder/clang main.c -O1 -S -emit-llvm
+$folder/llc main.ll
 clang main.s
 
 v=$[ $RANDOM % 256 ]
