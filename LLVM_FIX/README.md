@@ -37,3 +37,17 @@ After the clang is compiled, you can use the backend pass with command
 `$path_to_binary/clang main.c -mllvm -x86-mir-analyze`
 
 Clang will print ``Found it --> `` if it finds a gadget.
+
+
+## Compile USLH
+
+USLH is developedn upon the LLVM git repo. We provide our modified version at https://doi.org/10.5281/zenodo.7704637
+
+To build the cusomized compiler, you can follow the instructions at https://clang.llvm.org/get_started.html.  
+
+In summary:
+1. `cd llvm-project` (Go to the directory that holds the code)
+2. `mkdir build && cd build`
+3. `cmake -DLLVM_ENABLE_PROJECTS=clang -G "Unix Makefiles" -DLLVM_ENABLE_ASSERTIONS=On -DLLVM_TARGETS_TO_BUILD=X86 -DCMAKE_BUILD_TYPE=Release -DLLVM_USE_LINKER=gold ../llvm`
+4. `make -j10` (Note that if you have limited RAM, you need to use fewer cores to build the project)
+5. After the compilation, you should find *clang* under folder /build/bin/
