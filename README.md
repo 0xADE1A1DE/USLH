@@ -1,86 +1,35 @@
-# Breaking and Fixing Specluative Load Hardening
-
-This repo contains PoC codes for paper *Breaking and Fixing Speculative Load Hardening*
-
-In this paper, we analyze the Speculative Load Hardening, a compiler based spectre-v1 mitigation, and we propose two types of attacks that can bypass SLH mitigation.
-
-## Speculative Load Hardening
-Speculative Load Hardening (*SLH*) is a compiler based spectre-v1 mitigation and it is implemented in LLVM by Chandler Carruth.
-
-SLH analyzes control flow transfers and it conditionally poisons loaded values or addresses of loads.  
-For detailed introduction of SLH, you could find it in our paper or the LLVM homepage of SLH: https://llvm.org/docs/SpeculativeLoadHardening.html . 
-
-As described by the name of SLH, it hardens memory readings. If the secret is already held by a register, SLH cannot prevent leakages from it.
-
-## Breaking Speculative Load Hardening
-In our paper, we firstly demonstrate that a register that holds a secret can be leaked through a nested branch. Secondly, we show that the race condition between execution time and speculation window leaks secrets. Further, we show that the limitation of back-end resources also leaks secrets.
-
-### PoC_1: Leakages from nested branches
-Our first PoC shows that hardening memory reading is not sufficient to stop spectre-v1 attacks.  
-As listed in the following code block, an attacker trains the outer branch to be mispredicted so that a secret value is speculatively processed.
-```
-if (security_check) {
-  if (secret == 0) {
-    ...
-  } else {
-    ...
-  }
-}
-```
-To extend the speculation window, the outer branch condition is flushed. Inner branch determines how the secret value is processed.  
-Since the condition of innder branch is not flushed and it is resolved faster than the resolve of outer branch.  
-Namely, in the speculation window, the execution of inner branch always reveal the value of secret.
-
-As discussed in the last section, if a secret has already flowed into a register before the speculative execution (e.g. function parameter) , SLH does not harden it. Further, we demonstrate that the contention on execution ports leaks which secret relevant path is selected.
-
-You could find the PoC under folder Exploit_Poc/V1_SMoTherSpectre
-
-### PoC_2: Memory access dependent on variable timing instructions
-Our second PoC demonstrates that a memory access dependent on variable timing instructions can bypass vSLH (SLH that hardens loaded value). 
-```
-if (security_check) {
-  value = sqrtsd(value);
-  value = mulsd(value);
-  ...
-  value = sqrtsd(value);
-  memory_access(address depends on value);
-}
-```
-The execution time of floating point instructions depends on their input.
-In the PoC, we utilize the fact that SQRTSD instruction has different execution times on input: 65536 (0x40f0000000000000) is faster and 2.34e-308 (0x0010deadbeef1337) is slower.
-
-Depends on the execution time of floating point instructions, the memory access that is dependent on them may fall out ot the sepculation window (race condition between execution time and speculation window) and thus the memory access is not executed speculatively.  
-An attacker could infer the input to floating point operands by checking the existence of memory in the cache.  
-
-You could find the PoC under folder Exploit_Poc/V1_VariableTiming_dependency
-
-### PoC_3: Memory access independent on variable timing instructions
-Our thid PoC exploits the limitation of back-end limiation and we demonstrate that an access to a global variable (secret independent value) leaks information.
-```
-if (security_check) {
-  value = sqrtsd(value);
-  value = mulsd(value);
-  ...
-  value = sqrtsd(value);
-  memory_access(global variable);
-}
-```
-Floating point execution consumes back-end resources and depending on the race condition between the free of resource and speculation window, a memory access to a global variable may or may not be performed.
-
-In our PoC, we demonstrate that when the secret causes a slow floating point execution, the block of computer resources prevents the execution of a secret independent memory access.
-
-You could find the PoC under folder Exploit_Poc/V1_VariableTiming_RsourceContention
-
-The number of floating point instructions that block back-end resources are various among different platforms. It is related to the execution time of floating point executions and the speculation window.  
-
-We provide a script to test when floating point instructions block back-end resources needed for memory independent memory access.  
-We test it by adding pairs of SQRTSD and MULSD instructions in the victim function and after the victim execution, we check the presence of secret independent memory in the cache.
-
-On i7-10710U, with frequency at 3.8GHz, having 51 pairs of instruction blocks the speculative execution of secret independent memory access.
-
-![image](https://github.com/0xADE1A1DE/USLH/blob/master/Exploit_PoC/exhaust_resources/find_limitation.png)
+# Ultimate SLH: Taking Speculative Load Hardening to the Next Level
+*Authors:* Zhiyuan Zhang, Gilles Barthe, Chitchanok Chuengsatiansup, Peter Schwabe, Yuval Yarom.
 
 
-## Fixing Speculative Load Hardening
-We fix the vulnerabilities proposed in our paper and we also harden the memory writing, memory accessing on fixed address.  
-More information are provided in LLVM_FIX folder.
+*The paper is accepted in USENIX Security 2023 Fall Round*
+
+## Ultimate SLH
+
+### Limits of SLH
+In the paper, we evaulate several limits of implemented LLVM SLH and Strong SLH.  
+We firstly demonstrate that a secret value may flow into a register which is used for conditional
+ control flow transfer. It can be leaked by monitoring which branch is taken from a covert channel.  
+We then demonstrate that variable-timing instruction under speculative execution is also vulnerable.  
+We show that the secret can be leaked from a memory access to a public fixed address which is not secret relevant.  
+
+### Fix SLH
+We fix the SLH by extending the work to match the description of SSLH and we further protect the 
+variable-timing instructions.
+
+## Artifact Evaluation
+We provide PoC to demonstrate leakages from resolving branch conditions and variable timing instructions.    
+
+### Resolving branch condition
+SLH protects values loaded from the memory but not values in the register.  
+We demonstrate that a nested branch can leak secret by resolving a branch speculatively.  
+We further show that the the issue can be fixed by hardening the branch conditions in extra.  
+You can find more information under *PoC/condition*
+
+### Variable-time instructions
+In the paper, we present a PoC of exploting variable-timem instructions: *sqrtsd*.  
+The root cause of the attack is that the speculative window is restricted the Reservation Station.(RS)  
+In cases that the size of Reorder Buffer (ROB) is large enough and time of solving branch condition is long enough, the limitation of RS may prevent the schedule of some operations such as memory accesses.  
+
+In the artifact evaluation, we provide code to evaluate if the processor is vulnerable to variable-time instructions under speculative execution (See *PoC/test_rs_limit*).  
+Further we provide code to evaulate a PoC attack in *PoC/variable_time*. You can evaluate both the attack and mitigation.
