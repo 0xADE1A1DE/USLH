@@ -21,6 +21,8 @@ variable-timing instructions.
 Please set processor governor to *performance* to get stable result for evaluating the artifact.  
 You can achieve this with *cpupower* command.
 
+### General Setting
+Please set the processor governor to performance for evaluating the artifact.  
 
 ### Resolving branch condition
 SLH protects values loaded from the memory but not values in the register.  
