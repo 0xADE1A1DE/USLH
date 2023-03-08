@@ -24,6 +24,10 @@ You can achieve this with *cpupower* command.
 ### General Setting
 Please set the processor governor to performance for evaluating the artifact.  
 
+
+### USLH: To fix SLH
+We provide code for USLH under folder *\LLVM_FIX*. Please follow the instructions on README to compile it. It may take a while to compile ;) (On i7-10710U, 4.1GHz, it takes 40 minutes)
+
 ### Resolving branch condition
 SLH protects values loaded from the memory but not values in the register.  
 We demonstrate that a nested branch can leak secret by resolving a branch speculatively.  
@@ -38,5 +42,5 @@ In cases that the size of Reorder Buffer (ROB) is large enough and time of solvi
 In the artifact evaluation, we provide code to evaluate if the processor is vulnerable to variable-time instructions under speculative execution (See *PoC/test_rs_limit*).  
 Further we provide code to evaulate a PoC attack in *PoC/variable_time*. You can evaluate both the attack and mitigation.
 
-### USLH: To fix SLH
-We provide code for USLH under folder *\LLVM_FIX*. Please follow the instructions on README to compile it. It may take a while to compile ;) (On i7-10710U, 4.1GHz, it takes 40 minutes)
+### Gadget Searching
+In the modified LLVM code we provide, we also include an llvm backend pass that performs static analysis on the source code during the compilarion. Please refer to folder *LLVM_FIX* for more information.
