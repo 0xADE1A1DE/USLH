@@ -18,7 +18,9 @@ We fix the SLH by extending the work to match the description of SSLH and we fur
 variable-timing instructions.
 
 ## Artifact Evaluation
-We provide PoC to demonstrate leakages from resolving branch conditions and variable timing instructions.    
+Please set processor governor to *performance* to get stable result for evaluating the artifact.  
+You can achieve this with *cpupower* command.
+
 
 ### Resolving branch condition
 SLH protects values loaded from the memory but not values in the register.  
@@ -33,3 +35,6 @@ In cases that the size of Reorder Buffer (ROB) is large enough and time of solvi
 
 In the artifact evaluation, we provide code to evaluate if the processor is vulnerable to variable-time instructions under speculative execution (See *PoC/test_rs_limit*).  
 Further we provide code to evaulate a PoC attack in *PoC/variable_time*. You can evaluate both the attack and mitigation.
+
+### USLH: To fix SLH
+We provide code for USLH under folder *\LLVM_FIX*. Please follow the instructions on README to compile it. It may take a while to compile ;) (On i7-10710U, 4.1GHz, it takes 40 minutes)
