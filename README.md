@@ -9,7 +9,7 @@
 ## Ultimate SLH
 
 ### Experiment Environment
-The experiments have been tested on 8th, 9th, 10th Gen Intel Processors running Ubuntu 20.04.  
+The experiments have been tested on 8th(i5-8265U), 9th (i7-9750H), 10th(i7-10710U) Gen Intel Processors running Ubuntu 20.04.  
 To compile the customized LLVM, you will need at least 8GB RAM.
 
 ### Limits of SLH
