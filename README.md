@@ -3,8 +3,14 @@
 
 
 *The paper is accepted in USENIX Security 2023 Fall Round*
+(A preprint verstion of the paper is available at [paper](https://cs.adelaide.edu.au/~yval/pdfs/ZhangBCSY22.pdf))
+
 
 ## Ultimate SLH
+
+### Experiment Environment
+The experiments have been tested on 8th, 9th, 10th Gen Intel Processors running Ubuntu 20.04.  
+To compile the customized LLVM, you will need at least 8GB RAM.
 
 ### Limits of SLH
 In the paper, we evaulate several limits of implemented LLVM SLH and Strong SLH.  
