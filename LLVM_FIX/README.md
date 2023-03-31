@@ -51,3 +51,9 @@ In summary:
 3. `cmake -DLLVM_ENABLE_PROJECTS=clang -G "Unix Makefiles" -DLLVM_ENABLE_ASSERTIONS=On -DLLVM_TARGETS_TO_BUILD=X86 -DCMAKE_BUILD_TYPE=Release -DLLVM_USE_LINKER=gold ../llvm`
 4. `make -j10` (Note that if you have limited RAM, you need to use fewer cores to build the project)
 5. After the compilation, you should find *clang* under folder /build/bin/
+
+
+
+### Patch
+We provide a patch to the latest github version of SLH (https://github.com/llvm/llvm-project/tree/4b1b9e22b3cb854e90e718e9d10d7ceb6e12f26a) 
+
