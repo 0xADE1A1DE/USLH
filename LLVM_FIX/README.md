@@ -28,6 +28,8 @@ We also harden rcx register for REPEAT instructions. They are special cases for 
 
 **Code is in file X86SpeculativeLoadHardening.cpp**
 
+### Patch
+We provide a patch to the latest github version of SLH (https://github.com/llvm/llvm-project/tree/4b1b9e22b3cb854e90e718e9d10d7ceb6e12f26a) 
 
 # Find Gadget
 The code is in file X86MIRanalyze.cpp.
@@ -39,7 +41,31 @@ After the clang is compiled, you can use the backend pass with command
 Clang will print ``Found it --> `` if it finds a gadget.
 
 
-## Compile USLH
+## Compile several softwares
+We show the commands to compile softwares in Table 2 with our analysis pass.
+
+### OpenSSL 1.1.1q
+1. `./config CC=path/to/clang CXX=path/to/clang++ CFLAGS="-Wall -O3 -mllvm -x86-mir-analyze" CXXFLAGS="-Wall -O3 -mllvm -x86-mir-analyze"`  
+2. `make`
+
+### bash-5.1.16
+1. `./configure CC=path/to/clang CFLAGS='-O3 -mllvm -x86-mir-analyze'`  
+2. `make`
+
+
+### libgcrypto 1.8.9
+1. `./configure CC=path/to/clang CFLAGS="g -O1 -fvisibility=hidden -fno-delete-null-pointer-checks -Wall -mllvm -x86-mir-analyze"`
+2. `make`
+
+### musl 1.2.3
+1. `./configure CC=path/to/clang CFLAGS="-mllvm -x86-mir-analyze"`
+2. `make`
+
+### python 3.9.14 
+1. './configure CC=path/to/clang CXX=path/to/clang++ CFLAGS="-mllvm -x86-mir-analyze"'
+2. `make`
+
+# Compile USLH
 
 USLH is developedn upon the LLVM git repo. We provide our modified version at https://doi.org/10.5281/zenodo.7704637
 
@@ -54,6 +80,4 @@ In summary:
 
 
 
-### Patch
-We provide a patch to the latest github version of SLH (https://github.com/llvm/llvm-project/tree/4b1b9e22b3cb854e90e718e9d10d7ceb6e12f26a) 
 
