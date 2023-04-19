@@ -13,6 +13,15 @@ is a memory access to a public address.
 Simply execute `$bash attack.bash` or `$bash mitigate.bash` could compile and evaluate the PoC 
 without or with mitigation.
 
+### Issues
+(Thanks comments from anonymous reviewers of USENIX Security AE)  
+You may see following issues when compile the program:  
+`/usr/bin/ld: /tmp/main-19d661.o: relocation R_X86_64_32 against `.rodata.str1.1' can not be used when making a PIE object; recompile with -fPIE
+/usr/bin/ld: failed to set dynamic section sizes: bad value
+clang: error: linker command failed with exit code 1 (use -v to see invocation)`
+
+To solve the issue, you will need to add -no-pie to the second clang call in *attack.bash* and *mitigate.bash* (clang -no-pie main.s).
+
 ## Notes
 - The number of pairs of `sqrtsd, mulsd` is various from platform to platform. 
 You will need to find a vulnerable pair on your machine.  
