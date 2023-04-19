@@ -43,7 +43,7 @@ linux-vdso.so.1 (0x00007ffd86c63000)
 While `a->top` is valid, the branch evaluates whether the big number is zero or not. 
 If it is zero, then it invokes `BN_zero` to zero the value otherwise it performs the multiplication.
 
-`
+```
 int BN_mul_word(BIGNUM *a, BN_ULONG w)
 {
     BN_ULONG ll;
@@ -65,7 +65,7 @@ int BN_mul_word(BIGNUM *a, BN_ULONG w)
     bn_check_top(a);
     return 1;
 }
-`
+```
 
 ## Run the code
 You can run the code with command `./crun $bit` where `$bit` is either 1 or 0.  
