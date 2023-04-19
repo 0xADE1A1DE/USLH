@@ -38,3 +38,8 @@ When `$val` is 1, the *global_variable2* should not be cached. So you will see r
 ### fix 
 No matter `$val` is 1 or 0. The timing result should always indicates a cache miss on accessing *global_variable2*
 
+
+## Auto Test Script
+(Thanks code provided by anonymous reviewers in USENIX Security AE) 
+
+After compiling the code, you could also run the auto_plot.py script to check the timing distribution.
