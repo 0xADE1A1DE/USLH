@@ -13,7 +13,7 @@ You should replace `$path_to_binary` with your own path to the customized clang 
 The number after `-j` should be the number of logical cores you want to use to compile the project.
 
 #### Issues on Ubuntu 22.04
-(Thanks anonymous reviewrs of USENIX Security AE)  
+(Thanks comments from anonymous reviewrs of USENIX Security AE)  
 You may see issue  
 `
 test/v3ext.c:201:24: error: call to undeclared library function 'memcmp' 
@@ -63,7 +63,7 @@ int BN_mul_word(BIGNUM *a, BN_ULONG w)
         }
     }
     bn_check_top(a);
-	    return 1;
+    return 1;
 }
 `
 
