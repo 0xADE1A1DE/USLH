@@ -31,6 +31,8 @@ double __attribute__((optnone)) victim_function(register int secret, register in
 
   if (isPublic < array[0x2 * STRIDE]) {
     uint64_t tmp = ((secret >> bit) & 1) ? 0x40f0000000000000 : 0x0010deadbeef1337;
+
+    // USLH will harden this operation
     volatile double tmp2 = tmp * tmp;
     
     asm volatile (".rept 47;\nsqrtsd %xmm0, %xmm0;\nmulsd %xmm0, %xmm0;\n.endr");

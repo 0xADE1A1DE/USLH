@@ -45,14 +45,6 @@ int main(int argc, char *argv[])
   unsigned int dummy = 0;
   memory_barrier
   
-#if 0
-  // Train victim
-  test1(1, 1);
-  memory_barrier
-  test1(1, 1);
-  memory_barrier
-#endif
-
   // Flush global_variable
   clflush(global_variable1);
   clflush(global_variable2);
