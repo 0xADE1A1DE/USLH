@@ -12,7 +12,15 @@ You should replace `$path_to_binary` with your own path to the customized clang 
 2. Compile the openssl with command `make clean && make -j12`  
 The number after `-j` should be the number of logical cores you want to use to compile the project.
 
-## Compule the Code
+#### Issues on Ubuntu 22.04
+(Thanks anonymous reviewrs of USENIX Security AE)  
+You may see issue  
+`
+test/v3ext.c:201:24: error: call to undeclared library function 'memcmp' 
+`
+when compiling OpenSSL on Ubuntu 22.04. To tackle this issue, you will need to add `#include <string.h>` to test/v3ext.c. More information is available at (https://github.com/openssl/openssl/issues/18720).
+
+## Compile the Code
 1. Before you compile the code, you should direct the path to the correct library path:  
 For exmaple  
 `export LD_LIBRARY_PATH=/home/zzy/Desktop/gadget_search/crypt_lib/library/openssl-1.1.1q/`  
