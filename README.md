@@ -3,7 +3,7 @@
 
 
 *The paper is accepted in USENIX Security 2023 Fall Round*
-(A preprint verstion of the paper is available at [paper](https://cs.adelaide.edu.au/~yval/pdfs/ZhangBCSY22.pdf))
+(A preprint verstion of the paper is available at [paper](https://eprint.iacr.org/2022/715.pdf))
 
 
 ## Ultimate SLH
