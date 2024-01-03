@@ -50,3 +50,13 @@ Further we provide code to evaulate a PoC attack in *PoC/variable_time*. You can
 
 ### Gadget Searching
 In the modified LLVM code we provide, we also include an llvm backend pass that performs static analysis on the source code during the compilarion. Please refer to folder *LLVM_FIX* for more information.
+
+## Acknowledgements
+#### This project was supported by:  
+* an ARC Discovery Early Career Researcher Award DE200101577
+* an ARC Discovery Project number DP210102670
+* the Blavatnik ICRC at Tel-Aviv University
+* the European Commission through the ERC Starting Grant 805031 (EPOQUE)
+* Deutsche Forschungsgemeinschaft (DFG, German research Foundation) as part of the Excellence Strategy of the German Federal and State Governments – EXC 2092 CASA - 390781972
+* the German Federal Ministry of Education and Research (BMBF) in the course of the 6GEM research hub under grant number 16KISK038
+* and a gift by Google.
